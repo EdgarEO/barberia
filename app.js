@@ -1,165 +1,271 @@
-// =========================
-// REGISTRO DE USUARIO
-// =========================
+const express = require('express');
+const cors = require('cors');
+const db = require('./db');
 
-async function registrarUsuario(){
+const app = express();
 
-const nombre =
-document.getElementById("nombreUsuario").value;
+app.use(cors());
+app.use(express.json());
 
-const correo =
-document.getElementById("correoUsuario").value;
 
-const password =
-document.getElementById("passwordUsuario").value;
+// =====================
+// INICIO
+// =====================
 
-if(
-nombre === "" ||
-correo === "" ||
-password === ""
-){
-alert("Completa todos los campos");
-return;
-}
+app.get('/', (req, res) => {
+    res.send('Servidor funcionando');
+});
 
-const respuesta = await fetch(
-'http://localhost:3000/registro',
-{
-method:'POST',
-headers:{
-'Content-Type':'application/json'
-},
-body:JSON.stringify({
-nombre,
-correo,
-password
-})
-}
-);
 
-const datos = await respuesta.json();
+// =====================
+// REGISTRO
+// =====================
 
-alert(datos.mensaje);
+app.post('/registro', (req, res) => {
 
-window.location.href='index.html';
+    const { nombre, correo, password } = req.body;
 
-}
-// =========================
+    const sql = `
+    INSERT INTO usuarios(nombre, correo, password)
+    VALUES (?, ?, ?)
+    `;
+
+    db.query(
+        sql,
+        [nombre, correo, password],
+        (err, result) => {
+
+            if(err){
+                console.log(err);
+
+                return res.status(500).json({
+                    mensaje:'Error al registrar'
+                });
+            }
+
+            res.json({
+                mensaje:'Usuario registrado'
+            });
+
+        }
+    );
+
+});
+
+
+// =====================
 // LOGIN
-// =========================
+// =====================
 
-async function login(){
+app.post('/login', (req, res) => {
 
-const correo =
-document.getElementById("correo").value;
+    const { correo, password } = req.body;
 
-const password =
-document.getElementById("password").value;
+    const sql = `
+    SELECT * FROM usuarios
+    WHERE correo = ?
+    AND password = ?
+    `;
 
-const respuesta = await fetch(
-'http://localhost:3000/login',
-{
-method:'POST',
-headers:{
-'Content-Type':'application/json'
-},
-body:JSON.stringify({
-correo,
-password
-})
-}
-);
+    db.query(
+        sql,
+        [correo, password],
+        (err, results) => {
 
-const datos = await respuesta.json();
+            if(err){
 
-if(datos.success){
+                return res.status(500).json({
+                    mensaje:'Error en servidor'
+                });
 
-localStorage.setItem(
-'usuario_id',
-datos.usuario.id
-);
+            }
 
-localStorage.setItem(
-'usuario_nombre',
-datos.usuario.nombre
-);
+            if(results.length > 0){
 
-window.location.href =
-"inicio.html";
+                res.json({
+                    success:true,
+                    usuario:results[0]
+                });
 
-}else{
+            }else{
 
-alert(datos.mensaje);
+                res.json({
+                    success:false,
+                    mensaje:'Correo o contraseña incorrectos'
+                });
 
-}
+            }
 
-}
+        }
+    );
 
-// =========================
+});
+
+
+// =====================
 // AGENDAR CITA
-// =========================
+// =====================
 
-async function agendar(){
+app.post('/cita', (req, res) => {
 
-const usuario_id =
-localStorage.getItem('usuario_id');
+    const {
+        usuario_id,
+        nombre,
+        telefono,
+        servicio,
+        fecha,
+        hora
+    } = req.body;
 
-const nombre =
-document.getElementById("nombre").value;
+    let precio = 0;
 
-const telefono =
-document.getElementById("telefono").value;
+    if(servicio === 'Corte'){
+        precio = 150;
+    }
 
-const servicio =
-document.getElementById("servicio").value;
+    if(servicio === 'Barba'){
+        precio = 100;
+    }
 
-const fecha =
-document.getElementById("fecha").value;
+    if(servicio === 'Corte y Barba'){
+        precio = 250;
+    }
 
-const hora =
-document.getElementById("hora").value;
+    const verificar = `
+    SELECT * FROM citas
+    WHERE fecha = ?
+    AND hora = ?
+    `;
 
-if(
-nombre === "" ||
-telefono === "" ||
-servicio === "" ||
-fecha === "" ||
-hora === ""
-){
-alert("Completa todos los campos");
-return;
-}
+    db.query(
+        verificar,
+        [fecha, hora],
+        (err, resultado) => {
 
-const respuesta = await fetch(
-'http://localhost:3000/cita',
-{
-method:'POST',
-headers:{
-'Content-Type':'application/json'
-},
-body:JSON.stringify({
-usuario_id,
-nombre,
-telefono,
-servicio,
-fecha,
-hora
-})
-}
-);
+            if(err){
 
-const datos = await respuesta.json();
+                return res.status(500).json({
+                    mensaje:'Error al verificar horario'
+                });
 
-if(datos.success){
+            }
 
-alert(datos.mensaje);
+            if(resultado.length > 0){
 
-window.location.href =
-'confirmacion.html';
+                return res.json({
+                    success:false,
+                    mensaje:'Ese horario ya está reservado'
+                });
 
-}else{
+            }
 
-alert(datos.mensaje);
+            const sql = `
+            INSERT INTO citas
+            (
+                usuario_id,
+                nombre,
+                telefono,
+                servicio,
+                fecha,
+                hora,
+                precio
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            `;
 
-}
-}
+            db.query(
+                sql,
+                [
+                    usuario_id,
+                    nombre,
+                    telefono,
+                    servicio,
+                    fecha,
+                    hora,
+                    precio
+                ],
+                (err, result) => {
+
+                    if(err){
+
+                        console.log(err);
+
+                        return res.status(500).json({
+                            mensaje:'Error al guardar cita'
+                        });
+
+                    }
+
+                    res.json({
+                        success:true,
+                        mensaje:'Cita registrada correctamente'
+                    });
+
+                }
+            );
+
+        }
+    );
+
+});
+
+
+// =====================
+// ESTADISTICAS
+// =====================
+
+app.get('/estadisticas', (req, res) => {
+
+    const sql = `
+    SELECT
+        COUNT(*) AS totalClientes,
+        SUM(precio) AS ingresos
+    FROM citas
+    `;
+
+    db.query(sql, (err, result) => {
+
+        if(err){
+            return res.status(500).json(err);
+        }
+
+        res.json(result[0]);
+
+    });
+
+});
+
+
+// =====================
+// LISTAR CITAS
+// =====================
+
+app.get('/citas', (req, res) => {
+
+    const sql = `
+    SELECT * FROM citas
+    ORDER BY fecha DESC
+    `;
+
+    db.query(sql, (err, result) => {
+
+        if(err){
+            return res.status(500).json(err);
+        }
+
+        res.json(result);
+
+    });
+
+});
+
+
+// =====================
+// SERVIDOR
+// =====================
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    console.log(`Servidor corriendo en puerto ${PORT}`);
+});
