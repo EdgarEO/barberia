@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Agendar cita</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div class="contenedor">
+
+<div class="contenido">
+
+<h2>Agendar cita</h2>
+
+<input
+type="text"
+id="nombre"
+placeholder="Nombre completo"
+>
+
+<input
+type="tel"
+id="telefono"
+placeholder="Número de contacto"
+>
+
+<select id="servicio">
+
+<option value="">
+Seleccione un servicio
+</option>
+
+<option value="Corte">
+Corte
+</option>
+
+<option value="Barba">
+Barba
+</option>
+
+<option value="Ambos">
+Corte + Barba
+</option>
+
+</select>
+
+<input type="date" id="fecha">
+
+<input type="time" id="hora">
+
+<button class="btn" onclick="agendar()">
+Confirmar
+</button>
+
+</div>
+
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>

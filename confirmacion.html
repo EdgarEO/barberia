@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Confirmación</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div class="contenedor">
+
+<div class="contenido">
+
+<img src="logo.png" class="logo">
+
+<h2>Cita agendada</h2>
+
+<div id="datos"></div>
+
+<a href="inicio.html" class="btn">
+VOLVER
+</a>
+
+</div>
+
+</div>
+
+<script>
+
+document.getElementById("datos").innerHTML=
+`
+<p><b>Nombre:</b> ${localStorage.getItem("nombre")}</p>
+
+<p><b>Servicio:</b> ${localStorage.getItem("servicio")}</p>
+
+<p><b>Fecha:</b> ${localStorage.getItem("fecha")}</p>
+
+<p><b>Hora:</b> ${localStorage.getItem("hora")}</p>
+`;
+
+</script>
+
+</body>
+
+</html>

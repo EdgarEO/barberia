@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Registro</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div class="contenedor">
+
+<div class="contenido">
+
+<a href="inicio.html" class="volver">←</a>
+
+<img src="img/logo.png" class="logo">
+
+<h2>Agenda tu cita</h2>
+
+<input
+type="text"
+id="nombre"
+placeholder="Nombre completo">
+
+<input
+type="tel"
+id="telefono"
+placeholder="Número de contacto">
+
+<select id="servicio">
+
+<option value="">
+Seleccione un servicio
+</option>
+
+<option value="Corte">
+Solo corte
+</option>
+
+<option value="Barba">
+Solo barba
+</option>
+
+<option value="Ambos">
+Corte y barba
+</option>
+
+</select>
+
+<input type="date" id="fecha">
+
+<input type="time" id="hora">
+
+<button onclick="agendar()" class="btn">
+CONFIRMAR
+</button>
+
+</div>
+
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
